@@ -1,0 +1,112 @@
+/* Touch layouts, including iPhone 16 Pro in portrait and landscape. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.workspace > * { min-width: 0; }
+.mobile-upload { display: none; }
+
+@media (max-width: 650px) {
+  .header {
+    height: 80px;
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
+  .header .brand { font-size: 26px; gap: 9px; }
+  .header .brand-dot { margin-left: -9px; }
+  .how-link { display: flex; align-items: center; min-height: 44px; font-size: 12px; }
+  .how-link > span { margin-left: 6px; }
+  main {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .intro { padding: 30px 0; }
+  .eyebrow { font-size: 8px; letter-spacing: 1px; line-height: 1.6; }
+  h1 { font-size: clamp(30px, 8.6vw, 41px); line-height: 1.2; }
+  .intro p { font-size: 14px; line-height: 1.7; }
+  .format-tags { font-size: 10px; gap: 10px; flex-wrap: wrap; }
+  .format-tags span + span:before { margin-right: 10px; }
+  .editor { padding: 22px 18px; }
+  .panel-heading { gap: 8px; margin-bottom: 24px; }
+  .panel-heading h2 { font-size: 18px; }
+  .step-count { font-size: 9px; white-space: nowrap; }
+  .step-label h3 { font-size: 14px; line-height: 1.45; }
+  .number { width: 26px; height: 26px; flex-shrink: 0; font-size: 12px; }
+  .step-done { font-size: 11px; white-space: nowrap; }
+  .book-drop { min-height: 164px; padding: 24px 12px; text-align: center; }
+  .book-drop strong { font-size: 14px; line-height: 1.5; }
+  .book-drop > span:not(.upload-icon) { font-size: 12px; line-height: 1.5; }
+  .book-drop small { font-size: 11px; }
+  .book-drop > span:not(.upload-icon), .book-drop small,
+  .cover-drop > div > span, .hint, .switch-label small,
+  .save-area p, .preview-caption p, .privacy-note p,
+  .benefits p, .loaded-file > div > span { color: #68755f; }
+  .cover-drop { min-height: 88px; padding: 16px 12px; gap: 10px; }
+  .cover-drop > div { flex: 1; }
+  .cover-drop strong { max-width: 100%; font-size: 14px; line-height: 1.5; }
+  .cover-drop > div > span { font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+  .plus { flex-shrink: 0; }
+  .hint { font-size: 11px; line-height: 1.55; align-items: flex-start; gap: 6px; }
+  .hint svg { margin-top: 3px; }
+  .loaded-file { padding: 16px 12px; gap: 10px; }
+  .loaded-file strong { font-size: 14px; line-height: 1.5; }
+  .loaded-file > div > span { font-size: 12px; overflow-wrap: anywhere; }
+  .icon-button { width: 44px; height: 44px; flex-shrink: 0; }
+  .switch-label { min-height: 52px; align-items: flex-start; gap: 11px; }
+  .switch-label input { width: 40px; height: 44px; top: -10px; }
+  .switch { width: 40px; height: 24px; }
+  .switch:after { width: 18px; height: 18px; }
+  .switch-label input:checked + .switch:after { transform: translateX(16px); }
+  .switch-label > span:last-child { font-size: 13px; line-height: 1.6; }
+  .switch-label small { font-size: 11px; line-height: 1.6; }
+  .primary-button { min-height: 54px; font-size: 14px; padding: 10px 14px; gap: 8px; line-height: 1.5; }
+  .primary-button > span:first-child, .primary-button > span:last-child { flex-shrink: 0; }
+  .save-area p { font-size: 11px; line-height: 1.6; }
+  .status { font-size: 13px; overflow-wrap: anywhere; }
+  .ready-download { min-height: 44px; font-size: 14px; line-height: 1.6; }
+  .preview-panel { padding: 16px 18px 24px; }
+  .preview-heading { min-height: 44px; gap: 8px; }
+  .preview-heading > span { font-size: 10px; letter-spacing: 1px; }
+  .text-button { min-height: 44px; padding: 8px 0 8px 8px; font-size: 12px; }
+  .book-stage { height: 310px; }
+  .orbit-one { width: min(245px, 85%); aspect-ratio: 1; height: auto; }
+  .orbit-two { width: min(300px, 100%); aspect-ratio: 1; height: auto; }
+  .preview-caption > span { font-size: 14px; }
+  .preview-caption p { font-size: 12px; line-height: 1.65; }
+  .privacy-note { gap: 9px; }
+  .privacy-note strong { font-size: 13px; line-height: 1.5; }
+  .privacy-note p { font-size: 11px; line-height: 1.8; }
+  .privacy-note p br { display: none; }
+  .benefits h3 { font-size: 14px; line-height: 1.5; }
+  .benefits p { font-size: 12px; line-height: 1.7; }
+  footer {
+    font-size: 11px;
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+  .footer-note { font-size: 10px; }
+}
+
+@media (pointer: coarse), (max-width: 650px) {
+  .desktop-upload { display: none; }
+  .mobile-upload { display: inline; }
+  .icon-button, .text-button, .ready-download { min-height: 44px; min-width: 44px; }
+}
+
+@media (max-height: 500px) and (min-width: 651px) {
+  .header { height: 68px; padding-inline: max(28px, env(safe-area-inset-left), env(safe-area-inset-right)); }
+  main { padding-inline: max(24px, env(safe-area-inset-left), env(safe-area-inset-right)); }
+  .intro { padding: 24px 0; }
+  h1 { font-size: 38px; }
+  .workspace { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .primary-button { min-height: 48px; font-size: 12px; }
+  .switch-label { min-height: 44px; }
+  footer { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 360px) {
+  .header .brand { font-size: 23px; gap: 7px; }
+  .header .brand-dot { margin-left: -7px; }
+  .how-link { font-size: 11px; }
+  .editor { padding-inline: 14px; }
+  .panel-heading h2 { font-size: 16px; }
+  .primary-button { font-size: 12px; }
+}
