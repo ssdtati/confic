@@ -36,7 +36,7 @@
       $('book-details').textContent=`${size(file.size)} · EPUB ${book.version} · ${book.author}`;
       $('preview-title').textContent=book.title;
       if(!cover) showCover(oldCover,oldCover?'Текущая обложка · выберите изображение для замены':'В этой книге пока нет обложки');
-      message(cover?'Всё готово. Скачайте EPUB с новой обложкой.':'Книга открыта. Добавьте изображение обложки.');
+      message(cover?'Готово к сохранению.':'Книга выбрана.');
     }catch(error){if(rev===bookRevision)message(error.message||'Не удалось открыть книгу.',true);}
     finally{if(rev===bookRevision){bookBusy=false;sync();$('book-input').value='';}}
   }
@@ -64,10 +64,10 @@
         const data=await blob.arrayBuffer();if(rev!==coverRevision)return;
         cover={bytes:new Uint8Array(data),mime,width:canvas.width,height:canvas.height,blob};clearDownload();
         $('cover-label').textContent=file.name;$('cover-details').textContent=`${cover.width} × ${cover.height} px · ${size(blob.size)} · нажмите для замены`;
-        $('cover-drop').style.borderColor='#adc399';
+        $('cover-drop').style.borderColor='var(--wine)';
         showCover(blob,'Новая обложка · пропорции изображения сохранены');
         const ratio=cover.width/cover.height;$('book-object').style.width=`${Math.max(118,Math.min(220,250*ratio))}px`;
-        message(book?'Всё готово. Скачайте EPUB с новой обложкой.':'Обложка выбрана. Теперь загрузите EPUB.');
+        message(book?'Готово к сохранению.':'Обложка выбрана.');
       }finally{URL.revokeObjectURL(url);}
     }catch(error){if(rev===coverRevision)message(error.message||'Не удалось загрузить обложку.',true);}
     finally{if(rev===coverRevision){coverBusy=false;sync();$('cover-input').value='';}}
@@ -95,15 +95,15 @@
       const title=book.title.replace(/[\\/:*?"<>|\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').replace(/^[.\s]+|[.\s]+$/g,'').replace(/\.epub$/i,'').trim()||'Книга';
       const filename=/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(title)?`${title} книга`:title;
       downloadUrl=URL.createObjectURL(blob);const link=$('ready-download');link.href=downloadUrl;link.download=filename+'.epub';link.hidden=false;link.click();
-      message('Книга готова! Если скачивание не началось, нажмите «Скачать ещё раз».');
+      message('EPUB готов. Если файл не скачался, нажмите «Скачать ещё раз».');
     }catch(error){message(error.message||'Не удалось сохранить EPUB. Попробуйте ещё раз.',true);}
     finally{saving=false;sync();}
   });
   $('reset-button').addEventListener('click',()=>{
     if(saving)return;bookRevision++;coverRevision++;book=null;cover=null;bookBusy=false;coverBusy=false;clearDownload();
     $('book-drop').hidden=false;$('book-loaded').hidden=true;$('book-input').value='';$('cover-input').value='';
-    $('cover-label').textContent='Выберите изображение';$('cover-details').textContent='JPG, PNG или WebP · до 20 МБ';$('cover-drop').style.borderColor='';
-    $('preview-title').textContent='Место для вашей истории';$('book-object').style.width='';$('include-page').checked=true;$('include-page').closest('label').querySelector('small').textContent='Она появится и в библиотеке, и внутри книги';showCover(null);message('');sync();
+    $('cover-label').textContent='Выбрать изображение';$('cover-details').textContent='JPG, PNG, WebP · до 20 МБ';$('cover-drop').style.borderColor='';
+    $('preview-title').textContent='Ваша книга';$('book-object').style.width='';$('include-page').checked=true;$('include-page').closest('label').querySelector('small').textContent='Она появится и в библиотеке, и внутри книги';showCover(null);message('');sync();
   });
   sync();
 })();

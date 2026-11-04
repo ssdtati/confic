@@ -1,35 +1,87 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Добавьте новую обложку в EPUB за пару шагов. Бесплатно, без отправки книги на сервер.">
-  <meta name="theme-color" content="#f7f7f2"><title>Переплёт — новая обложка вашей книги</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="mobile.css">
-  <script defer src="vendor/jszip.min.js"></script><script defer src="epub.js"></script><script defer src="app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Переплёт — личная мастерская обложек EPUB.">
+  <meta name="theme-color" content="#7b1429">
+  <title>Переплёт — мастерская обложек</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script defer src="vendor/jszip.min.js"></script>
+  <script defer src="epub.js"></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
-<header class="header"><a class="brand" href="./" aria-label="Переплёт, главная"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span>переплёт<span class="brand-dot">.</span></a><div class="header-right"><span class="local-badge"><span></span>Всё остаётся на вашем устройстве</span><a href="#how" class="how-link">Как это работает <span>↗</span></a></div></header>
-<main>
-  <section class="intro"><div class="eyebrow"><span></span>МАЛЕНЬКАЯ МАСТЕРСКАЯ ЭЛЕКТРОННЫХ КНИГ</div><h1>Хорошая книга.<br>Обложка <em>по душе.</em><svg viewBox="0 0 300 20" aria-hidden="true"><path d="M5 13 Q140 0 294 11 M18 18 Q159 8 276 17"/></svg></h1><p>Добавьте или замените обложку в EPUB.<br>Пара простых шагов — и книга станет вашей.</p><div class="format-tags"><span>EPUB 2 и 3</span><span>Без регистрации</span><span>Бесплатно</span></div></section>
-  <div class="workspace">
-    <section class="editor" aria-label="Редактор обложки">
-      <div class="panel-heading"><h2>Соберём вашу книгу</h2><span class="step-count" id="step-count">ШАГ 1 ИЗ 3</span></div>
-      <div class="step" id="book-step"><div class="step-label"><span class="number">1</span><h3>Загрузите книгу</h3><span class="step-done" id="book-done" hidden>✓ Готово</span></div>
-        <div class="dropzone book-drop" id="book-drop"><input id="book-input" type="file" accept=".epub,application/epub+zip" aria-label="Загрузить книгу EPUB"><span class="upload-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 21V5m-6 6 6-6 6 6M5 20v6a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-6"/></svg></span><strong><span class="desktop-upload">Перетащите сюда EPUB</span><span class="mobile-upload">Нажмите, чтобы выбрать EPUB</span></strong><span>или <u>выберите файл</u> на устройстве</span><small>Только .epub · до 100 МБ</small></div>
-        <div id="book-loaded" class="loaded-file" hidden><span class="file-icon">EPUB</span><div><strong id="book-filename"></strong><span id="book-details"></span></div><button type="button" class="icon-button" id="change-book" aria-label="Выбрать другую книгу">↺</button></div>
+  <div class="paper">
+    <header class="header">
+      <span class="header-note">Личная книжная<br>мастерская</span>
+      <a class="brand" href="./" aria-label="Переплёт, главная">переплёт<span aria-hidden="true">✳</span></a>
+      <span class="header-mark" aria-hidden="true">с любовью<br>к историям</span>
+    </header>
+    <main>
+      <div class="title-row">
+        <h1>Новый <em>переплёт.</em></h1>
+        <span class="title-flower" aria-hidden="true">✳</span>
       </div>
-      <div class="step" id="cover-step"><div class="step-label"><span class="number">2</span><h3>Выберите новую обложку</h3><span class="step-done" id="cover-done" hidden>✓ Готово</span></div>
-        <div class="dropzone cover-drop" id="cover-drop"><input id="cover-input" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-label="Загрузить изображение обложки"><span class="image-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3" y="3" width="22" height="22" rx="4"/><circle cx="10" cy="10" r="2"/><path d="m4 21 7-7 4 4 4-5 6 7"/></svg></span><div><strong id="cover-label">Выберите изображение</strong><span id="cover-details">JPG, PNG или WebP · до 20 МБ</span></div><span class="plus" aria-hidden="true">+</span></div>
-        <div class="hint"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3"/><path d="M8 7v4M8 4.5v.5"/></svg> Лучше всего подойдёт вертикальная обложка 2:3.</div>
+      <div class="workspace">
+        <section class="editor" aria-label="Редактор обложки">
+          <span id="step-count" class="sr-only" aria-live="polite">ШАГ 1 ИЗ 3</span>
+          <div class="step" id="book-step">
+            <div class="step-label"><h2><span class="number">01</span> Книга</h2><span class="step-done" id="book-done" hidden>Готово ✓</span></div>
+            <div class="dropzone book-drop" id="book-drop">
+              <input id="book-input" type="file" accept=".epub,application/epub+zip" aria-label="Загрузить книгу EPUB">
+              <span class="upload-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 5h14l4 4v18H7zM21 5v5h4M16 23V13m-4 4 4-4 4 4"/></svg></span>
+              <strong>Выбрать EPUB <span aria-hidden="true">↗</span></strong>
+              <small>или перетащить сюда · до 100 МБ</small>
+            </div>
+            <div id="book-loaded" class="loaded-file" hidden>
+              <span class="file-icon" aria-hidden="true">EPUB</span>
+              <div><strong id="book-filename"></strong><span id="book-details"></span></div>
+              <button type="button" class="icon-button" id="change-book" aria-label="Выбрать другую книгу">↺</button>
+            </div>
+          </div>
+          <div class="step" id="cover-step">
+            <div class="step-label"><h2><span class="number">02</span> Обложка</h2><span class="step-done" id="cover-done" hidden>Готово ✓</span></div>
+            <div class="dropzone cover-drop" id="cover-drop">
+              <input id="cover-input" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-label="Загрузить изображение обложки">
+              <span class="image-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3" y="3" width="22" height="22" rx="2"/><circle cx="10" cy="10" r="2"/><path d="m4 21 7-7 4 4 4-5 6 7"/></svg></span>
+              <div><strong id="cover-label">Выбрать изображение</strong><span id="cover-details">JPG, PNG, WebP · до 20 МБ</span></div>
+              <span class="plus" aria-hidden="true">+</span>
+            </div>
+          </div>
+          <div class="export-options">
+            <label class="switch-label"><input id="include-page" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span><span>Обложка первой страницей<small class="sr-only">Она появится и в библиотеке, и внутри книги</small></span></label>
+          </div>
+          <div class="save-area"><button type="button" id="save-button" class="primary-button" disabled><span id="save-label">Скачать EPUB с обложкой</span><span aria-hidden="true">↓</span></button><p id="save-hint" class="sr-only">Загрузите книгу и изображение</p></div>
+          <div class="status" id="status" role="status" aria-live="polite" hidden></div>
+          <a class="ready-download" id="ready-download" hidden>Скачать ещё раз ↓</a>
+        </section>
+        <section class="preview-panel" aria-label="Предпросмотр обложки">
+          <div class="preview-heading"><span>На вашей полке</span><button type="button" id="reset-button" class="text-button" hidden>Сбросить ↺</button></div>
+          <div class="preview-card">
+            <span class="book-sticker" aria-hidden="true">ещё одну<br><em>главу!</em></span>
+            <div class="book-stage" id="book-stage">
+              <div class="book-object" id="book-object">
+                <div class="book-spine"></div><div class="book-pages"></div>
+                <div class="book-front">
+                  <div class="sample-cover" id="sample-cover" aria-hidden="true">
+                    <span class="sample-top">МАЛЕНЬКАЯ КОЛЛЕКЦИЯ ИСТОРИЙ</span>
+                    <div class="sample-title">Между<br><em>строк</em></div>
+                    <svg class="sample-art" viewBox="0 0 180 130" fill="none"><path d="M87 119C97 83 70 77 90 49M88 98C62 101 45 83 43 69c21-2 37 7 45 29ZM90 82c29 0 43-14 45-30-20-2-36 10-45 30Z" stroke="currentColor" stroke-width="2"/><path d="M90 51c-32 9-44-20-25-28-10-23 19-34 27-14 19-16 36 7 21 22 19 13 1 34-23 20Z" fill="#f4b6c8" stroke="currentColor" stroke-width="2"/><circle cx="91" cy="31" r="9" fill="#d8cdff" stroke="currentColor" stroke-width="2"/></svg>
+                    <span class="sample-bottom">ОДНА КНИГА · ТЫСЯЧА ЧУВСТВ</span>
+                  </div>
+                  <img id="cover-preview" alt="Выбранная обложка книги" hidden>
+                </div>
+              </div>
+            </div>
+            <div class="preview-caption"><span id="preview-title">Ваша книга</span><p id="preview-description" class="sr-only">Предпросмотр новой обложки</p></div>
+          </div>
+        </section>
       </div>
-      <div class="export-options"><label class="switch-label"><input id="include-page" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span><span>Добавить обложку первой страницей<small>Она появится и в библиотеке, и внутри книги</small></span></label></div>
-      <div class="save-area"><button id="save-button" class="primary-button" disabled><span class="download-icon" aria-hidden="true">↓</span><span id="save-label">Скачать EPUB с обложкой</span><span aria-hidden="true">↗</span></button><p id="save-hint">Загрузите книгу и изображение, чтобы продолжить</p></div>
-      <div class="status" id="status" role="status" aria-live="polite" hidden></div>
-      <a class="ready-download" id="ready-download" hidden>Скачать ещё раз ↓</a>
-    </section>
-    <section class="preview-panel" aria-label="Предпросмотр обложки"><div class="preview-heading"><span><span class="live-dot"></span>ПРЕДПРОСМОТР</span><button id="reset-button" class="text-button" hidden>Начать заново ↺</button></div><div class="book-stage" id="book-stage"><div class="stage-orbit orbit-one"></div><div class="stage-orbit orbit-two"></div><span class="stage-spark spark-one">✳</span><span class="stage-spark spark-two">+</span><div class="book-shadow"></div><div class="book-object" id="book-object"><div class="book-spine"></div><div class="book-pages"></div><div class="book-front"><div class="sample-cover" id="sample-cover"><span class="sample-top">ВАША ЛИЧНАЯ БИБЛИОТЕКА</span><div class="sample-title">Новая<br>глава<span>любимой книги</span></div><div class="sample-art" aria-hidden="true"><div class="arch arch-back"></div><div class="arch arch-front"></div><div class="sun"></div><div class="wave"></div></div><span class="sample-bottom">У КАЖДОЙ ИСТОРИИ СВОЯ ОБЛОЖКА</span></div><img id="cover-preview" alt="Выбранная обложка книги" hidden></div></div></div><div class="preview-caption"><span id="preview-title">Место для вашей истории</span><p id="preview-description">Так будет выглядеть книга с новой обложкой</p></div><div class="preview-rule"></div><div class="privacy-note"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg></span><div><strong>Ваша книга — только ваша</strong><p>Файлы обрабатываются в браузере.<br>Мы не загружаем и не храним их на сервере.</p></div></div></section>
+    </main>
+    <footer><span>EPUB 2 &amp; 3</span><span class="privacy-note"><span aria-hidden="true">♡</span> Файлы остаются на устройстве</span></footer>
   </div>
-  <section class="how-section" id="how"><div class="how-heading"><span class="eyebrow">НИЧЕГО ЛИШНЕГО</span><h2>Новый переплёт. Та же история.</h2></div><div class="benefits"><article><span class="benefit-icon">↔</span><h3>Текст остаётся на месте</h3><p>Главы, оглавление и оформление<br>сохраняются в вашей книге.</p></article><article><span class="benefit-icon">▧</span><h3>Обложка, которую вы выбрали</h3><p>Добавьте своё изображение или замените<br>старую обложку на новую.</p></article><article><span class="benefit-icon">↓</span><h3>Готово к чтению</h3><p>Скачайте обновлённый EPUB<br>и откройте в любимой читалке.</p></article></div></section>
-</main>
-<footer><a class="brand footer-brand" href="./">переплёт<span class="brand-dot">.</span></a><span>Для книг, которые хочется оставить.</span><span class="footer-note">Сделано с вниманием к деталям <span>✳</span></span></footer>
-</body></html>
+</body>
+</html>
