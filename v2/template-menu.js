@@ -40,7 +40,7 @@
   themes.forEach(t=>{
     const button=document.createElement('button'),img=document.createElement('img'),label=document.createElement('span');
     button.type='button';button.className='template-choice';button.dataset.theme=t.id;button.setAttribute('aria-pressed','false');button.setAttribute('aria-label',t.label+' — '+t.detail);
-    img.src='templates/'+t.id+'.jpg';img.alt='';img.width=150;img.height=200;label.textContent=t.label;button.append(img,label);
+    img.src='templates/'+t.id+'.jpg?v=oval-2';img.alt='';img.width=150;img.height=200;label.textContent=t.label;button.append(img,label);
     button.onclick=()=>{selected=t.id;selectButtons();queue();};dialog.querySelector('.template-choices').append(button);
   });
   function selectButtons(){dialog.querySelectorAll('.template-choice').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===selected)));}

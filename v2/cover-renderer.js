@@ -1,7 +1,7 @@
 /* Editable 3:4 covers. Real lettering with the bundled Lora font. */
 (function(root){
   'use strict';
-  const W=1500,H=2000,CX=750,CY=990,RX=360,RY=310;
+  const W=1500,H=2000,CX=750,CY=990,RX=450,RY=220;
   const themes=[
     {id:'dark-large',label:'Тёмная',detail:'Для больших книг',bg:'#351e29',stripe:'#402631',spine:'#281720',panel:'#eee5d8',panelEdge:'#9a847c',ink:'#39272d',footer:'#e7dacd'},
     {id:'medium',label:'Дымчато-голубая',detail:'Для средних книг',bg:'#98a8b0',stripe:'#acbac1',spine:'#85969f',panel:'#f1eade',panelEdge:'#969d9d',ink:'#2e3c43',footer:'#35454d'},
@@ -26,31 +26,48 @@
   }
   function layout(c,title,author){
     for(let size=112;size>=28;size-=2){
-      c.font=`500 ${size}px LoraCover`;
-      const textWidth=2*(RX-70);
+      c.font=`500 ${size}px LoraCover`;c.textAlign='left';c.textBaseline='alphabetic';
+      const textWidth=2*(RX-95);
       if(size>28&&title.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
       const titles=wrap(c,title,textWidth),lh=size*1.18;
       const as=Math.min(48,Math.max(30,size*.46));c.font=`500 ${as}px LoraCover`;
       if(size>28&&author.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
-      const authors=wrap(c,author,textWidth),ah=as*1.3,gap=43;
-      const total=titles.length*lh+gap+authors.length*ah;
-      if(total>420)continue;
-      let y=CY-total/2;const lines=[];
-      titles.forEach(text=>{lines.push({text,size,weight:500,y});y+=lh;});y+=gap;
-      authors.forEach(text=>{lines.push({text,size:as,weight:500,y});y+=ah;});
+      const authors=wrap(c,author,textWidth),ah=as*1.3,gap=Math.max(24,size*.32),lines=[];
+      function line(text,fontSize,baseline){
+        c.font=`500 ${fontSize}px LoraCover`;
+        const m=c.measureText(text);
+        return {text,size:fontSize,weight:500,baseline,
+          x:CX+(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2,
+          ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent,
+          width:m.actualBoundingBoxLeft+m.actualBoundingBoxRight};
+      }
+      titles.forEach((text,i)=>lines.push(line(text,size,i*lh)));
+      const titleBottom=Math.max(...lines.map(l=>l.baseline+l.descent));
+      authors.forEach((text,i)=>{
+        const next=line(text,as,0);
+        next.baseline=i?lines[lines.length-1].baseline+ah:titleBottom+gap+next.ascent;
+        lines.push(next);
+      });
+      const top=Math.min(...lines.map(l=>l.baseline-l.ascent));
+      const bottom=Math.max(...lines.map(l=>l.baseline+l.descent));
+      if(bottom-top>2*(RY-55))continue;
+      // Center the visible glyph bounds, rather than font line boxes and unused leading.
+      const shift=CY-(top+bottom)/2;
+      lines.forEach(l=>{l.baseline+=shift;l.y=l.baseline-l.ascent;l.height=l.ascent+l.descent;});
       const fits=lines.every(line=>{
-        c.font=`${line.weight} ${line.size}px LoraCover`;
-        const dy=Math.max(Math.abs(line.y-CY),Math.abs(line.y+line.size-CY));
+        const dy=Math.max(Math.abs(line.y-CY),Math.abs(line.y+line.height-CY));
         const available=2*(RX-60)*Math.sqrt(Math.max(0,1-(dy/(RY-45))**2));
-        return c.measureText(line.text).width<=available;
+        return line.width<=available;
       });
       if(fits)return lines;
     }
     throw new Error('Слишком много текста для небольшого овального поля. Сократите название или имя автора.');
   }
   function text(c,line){
-    c.font=`${line.weight} ${line.size}px LoraCover`;c.textAlign='center';c.textBaseline='alphabetic';
-    const m=c.measureText(line.text);c.fillText(line.text,CX,line.y+m.actualBoundingBoxAscent);
+    c.font=`${line.weight} ${line.size}px LoraCover`;c.textAlign='left';c.textBaseline='alphabetic';
+    const m=c.measureText(line.text);
+    const x=line.x??CX+(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2;
+    c.fillText(line.text,x,line.baseline??line.y+m.actualBoundingBoxAscent);
   }
   function emboss(c,mask,ink,paper){
     const image=c.getImageData(0,0,W,H),out=image.data,m=mask.getContext('2d').getImageData(0,0,W,H).data;
@@ -104,5 +121,5 @@
     if(options.grayscale){const im=c.getImageData(0,0,W,H);for(let i=0;i<im.data.length;i+=4){const v=Math.round((.299*im.data[i]+.587*im.data[i+1]+.114*im.data[i+2])/17)*17;im.data[i]=im.data[i+1]=im.data[i+2]=v;}c.putImageData(im,0,0);}
     return canvas;
   }
-  root.CoverTemplates={render,layout,themes,width:W,height:H};
+  root.CoverTemplates={render,layout,themes,width:W,height:H,panel:{x:CX,y:CY,width:RX*2,height:RY*2}};
 })(typeof window!=='undefined'?window:globalThis);
