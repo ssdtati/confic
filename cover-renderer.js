@@ -47,17 +47,14 @@
   const getFont=id=>fonts.find(f=>f.id===id)||fonts[0];
   function layout(c,title,author,options={}){
     const font=getFont(options.fontId);
-    const fixedTitle=Number.isFinite(options.titleSize)?options.titleSize:null;
-    const fixedAuthor=Number.isFinite(options.authorSize)?options.authorSize:null;
-    if((fixedTitle!==null&&(fixedTitle<28||fixedTitle>150))||(fixedAuthor!==null&&(fixedAuthor<18||fixedAuthor>80)))throw new Error('Выберите размер названия от 28 до 150, автора — от 18 до 80.');
-    const titleSizes=fixedTitle!==null?[fixedTitle]:Array.from({length:43},(_,i)=>112-i*2);
+    const titleSizes=Array.from({length:43},(_,i)=>112-i*2);
     for(const size of titleSizes){
       c.font=`${font.weight} ${size}px ${font.family}`;c.textAlign='left';c.textBaseline='alphabetic';
       const textWidth=2*(RX-95);
       if(title.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
       const titles=wrap(c,title,textWidth),lh=size*1.18;
-      const normal=Math.min(48,Math.max(30,size*.46)),floor=fixedTitle!==null?18:30;
-      const authorSizes=fixedAuthor!==null?[fixedAuthor]:Array.from({length:Math.max(1,Math.floor((normal-floor)/2)+1)},(_,i)=>normal-i*2);
+      const normal=Math.min(48,Math.max(30,size*.46)),floor=30;
+      const authorSizes=Array.from({length:Math.max(1,Math.floor((normal-floor)/2)+1)},(_,i)=>normal-i*2);
       for(const as of authorSizes){
         c.font=`${font.weight} ${as}px ${font.family}`;
         if(author.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
@@ -88,7 +85,7 @@
         }))return lines;
       }
     }
-    throw new Error('Текст не помещается в овал. Уменьшите размер или нажмите «Авто».');
+    throw new Error('Текст не помещается в овал. Сократите название или имя автора.');
   }
   function text(c,line){
     c.font=`${line.weight} ${line.size}px ${line.family||'LoraCover'}`;c.textAlign='left';c.textBaseline='alphabetic';

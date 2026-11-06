@@ -55,7 +55,7 @@
       if(cover?.template){
         const coverRev=coverRevision;
         try{
-          const generated=await TemplateMenu.create({...cover.template,titleSize:null,authorSize:null,title:book.title,author:book.author==='Автор не указан'?'Имя автора':book.author});
+          const generated=await TemplateMenu.create({...cover.template,title:book.title,author:book.author==='Автор не указан'?'Имя автора':book.author});
           if(rev!==bookRevision||coverRev!==coverRevision)return;
           acceptCover(generated);
         }catch(e){
