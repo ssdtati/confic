@@ -16,13 +16,13 @@
   <link rel="stylesheet" href="style.css?v=main-20261106">
   <link rel="stylesheet" href="mobile.css?v=main-20261106">
   <link rel="stylesheet" href="refinements.css?v=main-20261106">
-  <link rel="stylesheet" href="templates.css?v=fonts-20261106">
+  <link rel="stylesheet" href="templates.css?v=patterns-20261106">
   <script defer src="vendor/jszip.min.js?v=main-20261106"></script>
   <script defer src="epub.js?v=main-20261106"></script>
-  <script defer src="cover-fonts.js?v=fonts-20261106"></script>
-  <script defer src="cover-renderer.js?v=fonts-20261106"></script>
-  <script defer src="template-menu.js?v=fonts-20261106"></script>
-  <script defer src="app.js?v=fonts-20261106"></script>
+  <script defer src="cover-fonts.js?v=patterns-20261106"></script>
+  <script defer src="cover-renderer.js?v=patterns-20261106"></script>
+  <script defer src="template-menu.js?v=patterns-20261106"></script>
+  <script defer src="app.js?v=patterns-20261106"></script>
 </head>
 <body>
   <div class="paper">
@@ -55,7 +55,7 @@
           </div>
           <div class="step" id="cover-step">
             <div class="step-label"><h2><span class="number">02</span> Обложка</h2><span class="step-done" id="cover-done" hidden>Готово ✓</span></div>
-            <button type="button" class="template-open" id="choose-template"><span><strong>Выбрать шаблон</strong><small>Три настроения · ваше название и автор</small></span><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="13" height="18" rx="2"/><path d="M19 5v14M7 9h5M7 13h5"/></svg></button>
+            <button type="button" class="template-open" id="choose-template"><span><strong>Создать обложку</strong><small>Цвета, узоры и шрифты</small></span><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="13" height="18" rx="2"/><path d="M19 5v14M7 9h5M7 13h5"/></svg></button>
             <div class="cover-or"><span>или своё изображение</span></div>
             <div class="dropzone cover-drop" id="cover-drop">
               <input id="cover-input" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-label="Загрузить изображение обложки">
@@ -102,10 +102,16 @@
   </div>
 
   <dialog id="template-dialog" class="template-dialog" aria-labelledby="template-heading">
-    <div class="template-header"><div><h2 id="template-heading">Обложка из шаблона</h2><p>Маленькие детали вашей библиотеки</p></div><button type="button" class="template-close" id="template-close" aria-label="Закрыть">×</button></div>
+    <div class="template-header"><div><h2 id="template-heading">Собрать обложку</h2><p>Цвета, узор и любимый шрифт</p></div><button type="button" class="template-close" id="template-close" aria-label="Закрыть">×</button></div>
     <div class="template-content">
       <div class="template-settings">
-        <div class="template-choices" role="group" aria-label="Оформление обложки"></div>
+        <span class="template-control-label">Узор</span>
+        <div class="template-choices" role="group" aria-label="Узор обложки"></div>
+        <div class="cover-colors" role="group" aria-label="Цвета обложки">
+          <label class="cover-color">Фон<input id="cover-color1" type="color" value="#f7f0e5" aria-label="Первый основной цвет — фон"></label>
+          <label class="cover-color">Узор<input id="cover-color2" type="color" value="#b7c8d9" aria-label="Второй основной цвет — узор"></label>
+          <label class="cover-color">Плашка<input id="cover-panel-color" type="color" value="#fffaf1" aria-label="Цвет овальной плашки"></label>
+        </div>
         <label class="template-field" for="template-title">Название книги<textarea id="template-title" rows="2" maxlength="240" placeholder="Название книги"></textarea></label>
         <label class="template-field" for="template-author">Автор<input id="template-author" type="text" maxlength="120" placeholder="Имя автора"></label>
         <label class="template-field" for="template-font">Шрифт<select id="template-font" aria-label="Шрифт названия и автора"></select></label>
@@ -113,7 +119,7 @@
         <label class="template-size" for="template-title-size"><span>Название <output id="template-title-size-value" for="template-title-size">112</output></span><input id="template-title-size" type="range" min="28" max="150" step="2" value="112"></label>
         <label class="template-size" for="template-author-size"><span>Автор <output id="template-author-size-value" for="template-author-size">48</output></span><input id="template-author-size" type="range" min="18" max="80" step="1" value="48"></label>
         <div class="template-options"><label><input id="template-spine" type="checkbox" checked>Корешок</label><label><input id="template-gray" type="checkbox">Чёрно-белый вид</label></div>
-        <p class="template-meta">3:4 · ssdtati library</p>
+        <p class="template-meta">Льняная фактура · 3:4 · ssdtati library</p>
       </div>
       <div class="template-preview"><canvas id="template-canvas" width="1500" height="2000" aria-label="Предпросмотр выбранного шаблона"></canvas></div>
     </div>

@@ -15,7 +15,7 @@
     $('book-drop').classList.toggle('busy',bookBusy||saving); $('cover-drop').classList.toggle('busy',coverBusy||saving);
     $('choose-template').disabled=bookBusy||coverBusy||saving;
     $('book-input').disabled=bookBusy||saving; $('cover-input').disabled=coverBusy||saving; $('change-book').disabled=saving; $('reset-button').disabled=saving; $('include-page').disabled=saving;
-    $('save-hint').textContent=saving?'Сохраняем текст, оглавление и новую обложку':ready?'Готово! Осталось скачать вашу книгу':!book?'Загрузите книгу и изображение, чтобы продолжить':'Теперь выберите шаблон или изображение обложки';
+    $('save-hint').textContent=saving?'Сохраняем текст, оглавление и новую обложку':ready?'Готово! Осталось скачать вашу книгу':!book?'Загрузите книгу и изображение, чтобы продолжить':'Теперь настройте обложку или выберите изображение';
   }
   function showCover(blob,description){
     if(previewUrl) URL.revokeObjectURL(previewUrl);
@@ -28,7 +28,7 @@
   function acceptCover(next,label){
     cover=next;clearDownload();
     $('cover-label').textContent=label||'Своё изображение';
-    $('cover-details').textContent=cover.template?'Шаблон выбран · '+cover.width+' × '+cover.height+' px':`${cover.width} × ${cover.height} px · ${size(cover.blob.size)} · нажмите для замены`;
+    $('cover-details').textContent=cover.template?'Обложка настроена · '+cover.width+' × '+cover.height+' px':`${cover.width} × ${cover.height} px · ${size(cover.blob.size)} · нажмите для замены`;
     $('cover-drop').style.borderColor='var(--wine)';
     showCover(cover.blob,'Новая обложка готова к вставке в EPUB');
     if(!cover.template){const ratio=cover.width/cover.height;$('book-object').style.width=`${Math.max(118,Math.min(220,250*ratio))}px`;}else $('book-object').style.width='';
@@ -38,7 +38,7 @@
     const next=await TemplateMenu.open(cover?.template||{title:book?.title,author:book?.author});
     if(!next||saving)return;
     coverRevision++;coverBusy=false;acceptCover(next,'Своё изображение');
-    message(book?'Обложка вставлена. Можно скачать EPUB.':'Шаблон готов. Загрузите EPUB — подставим его название и автора.');sync();
+    message(book?'Обложка вставлена. Можно скачать EPUB.':'Обложка готова. Загрузите EPUB — подставим его название и автора.');sync();
   });
   async function loadBook(file){
     if(!file||saving) return;
