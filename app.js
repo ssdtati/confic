@@ -13,16 +13,33 @@
     $('book-done').hidden=!book; $('cover-done').hidden=!cover;
     $('reset-button').hidden=!book&&!cover;
     $('book-drop').classList.toggle('busy',bookBusy||saving); $('cover-drop').classList.toggle('busy',coverBusy||saving);
+    $('choose-template').disabled=bookBusy||coverBusy||saving;
     $('book-input').disabled=bookBusy||saving; $('cover-input').disabled=coverBusy||saving; $('change-book').disabled=saving; $('reset-button').disabled=saving; $('include-page').disabled=saving;
-    $('save-hint').textContent=saving?'Сохраняем текст, оглавление и новую обложку':ready?'Готово! Осталось скачать вашу книгу':!book?'Загрузите книгу и изображение, чтобы продолжить':'Теперь выберите изображение для новой обложки';
+    $('save-hint').textContent=saving?'Сохраняем текст, оглавление и новую обложку':ready?'Готово! Осталось скачать вашу книгу':!book?'Загрузите книгу и изображение, чтобы продолжить':'Теперь выберите шаблон или изображение обложки';
   }
   function showCover(blob,description){
     if(previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl=blob?URL.createObjectURL(blob):null;
+    $('book-object').closest('.preview-card').classList.toggle('has-template',!!(blob&&cover?.template));
     $('cover-preview').hidden=!blob; $('sample-cover').hidden=!!blob;
     if(blob) $('cover-preview').src=previewUrl; else $('cover-preview').removeAttribute('src');
     $('preview-description').textContent=description||'Так будет выглядеть книга с новой обложкой';
   }
+  function acceptCover(next,label){
+    cover=next;clearDownload();
+    $('cover-label').textContent=label||'Своё изображение';
+    $('cover-details').textContent=cover.template?'Шаблон выбран · '+cover.width+' × '+cover.height+' px':`${cover.width} × ${cover.height} px · ${size(cover.blob.size)} · нажмите для замены`;
+    $('cover-drop').style.borderColor='var(--wine)';
+    showCover(cover.blob,'Новая обложка готова к вставке в EPUB');
+    if(!cover.template){const ratio=cover.width/cover.height;$('book-object').style.width=`${Math.max(118,Math.min(220,250*ratio))}px`;}else $('book-object').style.width='';
+  }
+  $('choose-template').addEventListener('click',async()=>{
+    if(saving||bookBusy||coverBusy)return;
+    const next=await TemplateMenu.open(cover?.template||{title:book?.title,author:book?.author});
+    if(!next||saving)return;
+    coverRevision++;coverBusy=false;acceptCover(next,'Своё изображение');
+    message(book?'Обложка вставлена. Можно скачать EPUB.':'Шаблон готов. Загрузите EPUB — подставим его название и автора.');sync();
+  });
   async function loadBook(file){
     if(!file||saving) return;
     const rev=++bookRevision; bookBusy=true; message('Открываем книгу…'); sync();
@@ -35,6 +52,17 @@
       $('book-filename').textContent=book.file.name;
       $('book-details').textContent=`${size(file.size)} · EPUB ${book.version} · ${book.author}`;
       $('preview-title').textContent=book.title;
+      if(cover?.template){
+        const coverRev=coverRevision;
+        try{
+          const generated=await TemplateMenu.create({...cover.template,title:book.title,author:book.author==='Автор не указан'?'Имя автора':book.author});
+          if(rev!==bookRevision||coverRev!==coverRevision)return;
+          acceptCover(generated);
+        }catch(e){
+          if(rev!==bookRevision||coverRev!==coverRevision)return;
+          cover=null;clearDownload();showCover(oldCover);message(e.message||'Выберите шаблон ещё раз.',true);return;
+        }
+      }
       if(!cover) showCover(oldCover,oldCover?'Текущая обложка · выберите изображение для замены':'В этой книге пока нет обложки');
       message(cover?'Готово к сохранению.':'Книга выбрана.');
     }catch(error){if(rev===bookRevision)message(error.message||'Не удалось открыть книгу.',true);}
@@ -62,11 +90,7 @@
         if(mime==='image/jpeg'){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);}ctx.drawImage(image,0,0,canvas.width,canvas.height);
         const blob=await new Promise(resolve=>canvas.toBlob(resolve,mime,.94));if(!blob)throw new Error('Не удалось подготовить обложку.');
         const data=await blob.arrayBuffer();if(rev!==coverRevision)return;
-        cover={bytes:new Uint8Array(data),mime,width:canvas.width,height:canvas.height,blob};clearDownload();
-        $('cover-label').textContent=file.name;$('cover-details').textContent=`${cover.width} × ${cover.height} px · ${size(blob.size)} · нажмите для замены`;
-        $('cover-drop').style.borderColor='var(--wine)';
-        showCover(blob,'Новая обложка · пропорции изображения сохранены');
-        const ratio=cover.width/cover.height;$('book-object').style.width=`${Math.max(118,Math.min(220,250*ratio))}px`;
+        acceptCover({bytes:new Uint8Array(data),mime,width:canvas.width,height:canvas.height,blob},file.name);
         message(book?'Готово к сохранению.':'Обложка выбрана.');
       }finally{URL.revokeObjectURL(url);}
     }catch(error){if(rev===coverRevision)message(error.message||'Не удалось загрузить обложку.',true);}

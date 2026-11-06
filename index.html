@@ -6,19 +6,22 @@
   <meta name="description" content="Переплёт — личная мастерская обложек EPUB.">
   <meta name="theme-color" content="#7b1429">
   <title>Переплёт — мастерская обложек</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=main-20261106">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=main-20261106">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=main-20261106">
+  <link rel="manifest" href="site.webmanifest?v=main-20261106">
   <meta name="apple-mobile-web-app-title" content="Переплёт">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="mobile.css">
-  <link rel="stylesheet" href="refinements.css">
-  <script defer src="vendor/jszip.min.js"></script>
-  <script defer src="epub.js"></script>
-  <script defer src="app.js"></script>
+  <link rel="stylesheet" href="style.css?v=main-20261106">
+  <link rel="stylesheet" href="mobile.css?v=main-20261106">
+  <link rel="stylesheet" href="refinements.css?v=main-20261106">
+  <link rel="stylesheet" href="templates.css?v=main-20261106">
+  <script defer src="vendor/jszip.min.js?v=main-20261106"></script>
+  <script defer src="epub.js?v=main-20261106"></script>
+  <script defer src="cover-renderer.js?v=main-20261106"></script>
+  <script defer src="template-menu.js?v=main-20261106"></script>
+  <script defer src="app.js?v=main-20261106"></script>
 </head>
 <body>
   <div class="paper">
@@ -51,6 +54,8 @@
           </div>
           <div class="step" id="cover-step">
             <div class="step-label"><h2><span class="number">02</span> Обложка</h2><span class="step-done" id="cover-done" hidden>Готово ✓</span></div>
+            <button type="button" class="template-open" id="choose-template"><span><strong>Выбрать шаблон</strong><small>Три настроения · ваше название и автор</small></span><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="13" height="18" rx="2"/><path d="M19 5v14M7 9h5M7 13h5"/></svg></button>
+            <div class="cover-or"><span>или своё изображение</span></div>
             <div class="dropzone cover-drop" id="cover-drop">
               <input id="cover-input" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-label="Загрузить изображение обложки">
               <span class="image-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3" y="3" width="22" height="22" rx="2"/><circle cx="10" cy="10" r="2"/><path d="m4 21 7-7 4 4 4-5 6 7"/></svg></span>
@@ -94,5 +99,20 @@
     </main>
     <footer><span>EPUB 2 &amp; 3</span><span class="privacy-note"><span aria-hidden="true">♡</span> Файлы остаются на устройстве</span></footer>
   </div>
+
+  <dialog id="template-dialog" class="template-dialog" aria-labelledby="template-heading">
+    <div class="template-header"><div><h2 id="template-heading">Обложка из шаблона</h2><p>Маленькие детали вашей библиотеки</p></div><button type="button" class="template-close" id="template-close" aria-label="Закрыть">×</button></div>
+    <div class="template-content">
+      <div class="template-settings">
+        <div class="template-choices" role="group" aria-label="Оформление обложки"></div>
+        <label class="template-field" for="template-title">Название книги<textarea id="template-title" rows="2" maxlength="240" placeholder="Название книги"></textarea></label>
+        <label class="template-field" for="template-author">Автор<input id="template-author" type="text" maxlength="120" placeholder="Имя автора"></label>
+        <div class="template-options"><label><input id="template-spine" type="checkbox" checked>Корешок</label><label><input id="template-gray" type="checkbox">Чёрно-белый вид</label></div>
+        <p class="template-meta">3:4 · ssdtati library</p>
+      </div>
+      <div class="template-preview"><canvas id="template-canvas" width="1500" height="2000" aria-label="Предпросмотр выбранного шаблона"></canvas></div>
+    </div>
+    <div class="template-footer"><p id="template-status" role="status" aria-live="polite"></p><button type="button" id="template-apply">Вставить в книгу <span aria-hidden="true">↗</span></button></div>
+  </dialog>
 </body>
 </html>
