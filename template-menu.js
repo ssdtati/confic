@@ -1,29 +1,38 @@
-/* Local template chooser. Generated JPG stays in memory until the EPUB is saved. */
+/* Local font and template editor. Generated images go directly into the EPUB. */
 (function(){
   'use strict';
   const $=id=>document.getElementById(id),dialog=$('template-dialog'),canvas=$('template-canvas');
-  let fontPromise,resolveChoice=null,selected='dark-large',renderRevision=0,timer=null,lastRender=null,applying=false,returnFocus=null;
-  const themes=CoverTemplates.themes;
-  function font(){
-    if(!fontPromise)fontPromise=(async()=>{
-      const face=new FontFace('LoraCover','url(fonts/Lora-Variable.ttf)',{weight:'400 700'});
-      document.fonts.add(await face.load());
-    })().catch(e=>{fontPromise=null;throw e;});
-    return fontPromise;
+  const fontPromises=new Map(),themes=CoverTemplates.themes;
+  let resolveChoice=null,selected='dark-large',renderRevision=0,timer=null,lastRender=null,applying=false,returnFocus=null,titleSize=null,authorSize=null;
+  function loadFont(id){
+    const f=CoverTemplates.getFont(id);
+    if(!fontPromises.has(f.id))fontPromises.set(f.id,(async()=>{
+      const face=new FontFace(f.family,'url("'+encodeURI(f.file)+'")',{weight:f.weights});document.fonts.add(await face.load());
+    })().catch(()=>{fontPromises.delete(f.id);throw new Error('Не удалось загрузить шрифт. Выберите его ещё раз.');}));
+    return fontPromises.get(f.id);
   }
+  function fonts(id){return Promise.all([loadFont('lora'),loadFont(id)]);}
   function status(text,error=false){$('template-status').textContent=text;$('template-status').classList.toggle('error',error);}
-  function spec(){return {themeId:selected,title:$('template-title').value.trim(),author:$('template-author').value.trim(),spine:$('template-spine').checked};}
+  function spec(){return {themeId:selected,title:$('template-title').value.trim(),author:$('template-author').value.trim(),spine:$('template-spine').checked,fontId:$('template-font').value,titleSize,authorSize};}
   function validate(s){if(!s.title)throw new Error('Добавьте название книги.');if(!s.author)throw new Error('Добавьте имя автора.');}
   function busy(value){applying=value;dialog.classList.toggle('busy',value);$('template-close').disabled=value;$('template-apply').disabled=value;}
-  function queue(){clearTimeout(timer);renderRevision++;lastRender=null;$('template-apply').disabled=true;timer=setTimeout(paint,180);}
+  function queue(){clearTimeout(timer);renderRevision++;lastRender=null;$('template-apply').disabled=true;timer=setTimeout(paint,120);}
+  function sizes(){
+    const lines=canvas.coverLayout;
+    for(const kind of ['title','author']){
+      const l=lines.find(l=>l.kind===kind);if(!l)continue;
+      $(`template-${kind}-size`).value=String(Math.round(l.size));$(`template-${kind}-size-value`).textContent=String(Math.round(l.size));
+    }
+    $('template-auto').setAttribute('aria-pressed',String(titleSize===null&&authorSize===null));
+  }
   async function paint(){
-    const revision=++renderRevision;lastRender=null;$('template-apply').disabled=true;
-    const s=spec();
+    const revision=++renderRevision;lastRender=null;$('template-apply').disabled=true;const s=spec();
     try{
-      status('Готовим обложку…');await font();if(revision!==renderRevision||!dialog.open)return;
-      CoverTemplates.render(canvas,s.themeId,{...s,grayscale:$('template-gray').checked});
-      validate(s);lastRender=JSON.stringify(s);status('');$('template-apply').disabled=applying;
-    }catch(e){if(revision===renderRevision)status(e.message||'Не удалось подготовить обложку. Попробуйте ещё раз.',true);}
+      status('Готовим обложку…');await fonts(s.fontId);if(revision!==renderRevision||!dialog.open)return;
+      CoverTemplates.render(canvas,s.themeId,{...s,grayscale:$('template-gray').checked});sizes();
+      $('template-font').style.fontFamily='"'+CoverTemplates.getFont(s.fontId).family+'", Georgia, serif';
+      validate(s);lastRender=JSON.stringify(s);dialog.classList.remove('invalid');status('');$('template-apply').disabled=applying;
+    }catch(e){if(revision===renderRevision){dialog.classList.add('invalid');status(e.message||'Не удалось подготовить обложку.',true);}}
   }
   function close(value=null){
     if(applying)return;
@@ -31,12 +40,12 @@
     const done=resolveChoice;resolveChoice=null;if(done)done(value);returnFocus?.focus();
   }
   async function create(s){
-    validate(s);await font();
+    validate(s);await fonts(s.fontId);
     const output=document.createElement('canvas');CoverTemplates.render(output,s.themeId,s);
-    const blob=await new Promise(resolve=>output.toBlob(resolve,'image/jpeg',.96));
-    if(!blob)throw new Error('Не удалось подготовить обложку.');
+    const blob=await new Promise(resolve=>output.toBlob(resolve,'image/jpeg',.96));if(!blob)throw new Error('Не удалось подготовить обложку.');
     return {bytes:new Uint8Array(await blob.arrayBuffer()),mime:'image/jpeg',width:CoverTemplates.width,height:CoverTemplates.height,blob,template:{...s}};
   }
+  CoverTemplates.fonts.forEach(f=>{const option=document.createElement('option');option.value=f.id;option.textContent=f.name;$('template-font').append(option);});
   themes.forEach(t=>{
     const button=document.createElement('button'),img=document.createElement('img'),label=document.createElement('span');
     button.type='button';button.className='template-choice';button.dataset.theme=t.id;button.setAttribute('aria-pressed','false');button.setAttribute('aria-label',t.label+' — '+t.detail);
@@ -45,9 +54,11 @@
   });
   function selectButtons(){dialog.querySelectorAll('.template-choice').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===selected)));}
   $('template-title').addEventListener('input',queue);$('template-author').addEventListener('input',queue);
-  $('template-spine').addEventListener('change',queue);$('template-gray').addEventListener('change',queue);
-  $('template-close').onclick=()=>close();
-  dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+  for(const id of ['template-spine','template-gray','template-font'])$(id).addEventListener('change',queue);
+  $('template-title-size').addEventListener('input',()=>{titleSize=Number($('template-title-size').value);$('template-title-size-value').textContent=String(titleSize);$('template-auto').setAttribute('aria-pressed','false');queue();});
+  $('template-author-size').addEventListener('input',()=>{authorSize=Number($('template-author-size').value);$('template-author-size-value').textContent=String(authorSize);$('template-auto').setAttribute('aria-pressed','false');queue();});
+  $('template-auto').onclick=()=>{titleSize=null;authorSize=null;queue();};
+  $('template-close').onclick=()=>close();dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)close();}});
   $('template-apply').onclick=async()=>{
     const s=spec();if(applying||!lastRender||lastRender!==JSON.stringify(s))return;
@@ -55,12 +66,13 @@
     try{const cover=await create(s);busy(false);close(cover);}catch(e){busy(false);status(e.message||'Не удалось вставить обложку.',true);}
   };
   window.TemplateMenu={create,open(options={}){
-    if(resolveChoice)return Promise.resolve(null);
-    returnFocus=document.activeElement;
+    if(resolveChoice)return Promise.resolve(null);returnFocus=document.activeElement;
     selected=themes.some(t=>t.id===options.themeId)?options.themeId:'dark-large';
     $('template-title').value=options.title||'';$('template-author').value=options.author==='Автор не указан'?'':options.author||'';
-    $('template-spine').checked=options.spine!==false;$('template-gray').checked=false;selectButtons();
-    const result=new Promise(resolve=>{resolveChoice=resolve;});
-    dialog.showModal();document.body.classList.add('template-modal-open');dialog.scrollTop=0;paint();return result;
+    $('template-spine').checked=options.spine!==false;$('template-gray').checked=false;
+    $('template-font').value=CoverTemplates.getFont(options.fontId).id;
+    titleSize=Number.isFinite(options.titleSize)?options.titleSize:null;authorSize=Number.isFinite(options.authorSize)?options.authorSize:null;
+    selectButtons();dialog.classList.remove('invalid');
+    const result=new Promise(resolve=>{resolveChoice=resolve;});dialog.showModal();document.body.classList.add('template-modal-open');dialog.scrollTop=0;paint();return result;
   }};
 })();

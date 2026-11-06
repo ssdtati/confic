@@ -16,12 +16,13 @@
   <link rel="stylesheet" href="style.css?v=main-20261106">
   <link rel="stylesheet" href="mobile.css?v=main-20261106">
   <link rel="stylesheet" href="refinements.css?v=main-20261106">
-  <link rel="stylesheet" href="templates.css?v=main-20261106">
+  <link rel="stylesheet" href="templates.css?v=fonts-20261106">
   <script defer src="vendor/jszip.min.js?v=main-20261106"></script>
   <script defer src="epub.js?v=main-20261106"></script>
-  <script defer src="cover-renderer.js?v=main-20261106"></script>
-  <script defer src="template-menu.js?v=main-20261106"></script>
-  <script defer src="app.js?v=main-20261106"></script>
+  <script defer src="cover-fonts.js?v=fonts-20261106"></script>
+  <script defer src="cover-renderer.js?v=fonts-20261106"></script>
+  <script defer src="template-menu.js?v=fonts-20261106"></script>
+  <script defer src="app.js?v=fonts-20261106"></script>
 </head>
 <body>
   <div class="paper">
@@ -107,6 +108,10 @@
         <div class="template-choices" role="group" aria-label="Оформление обложки"></div>
         <label class="template-field" for="template-title">Название книги<textarea id="template-title" rows="2" maxlength="240" placeholder="Название книги"></textarea></label>
         <label class="template-field" for="template-author">Автор<input id="template-author" type="text" maxlength="120" placeholder="Имя автора"></label>
+        <label class="template-field" for="template-font">Шрифт<select id="template-font" aria-label="Шрифт названия и автора"></select></label>
+        <div class="template-size-heading"><span>Размер текста</span><button type="button" id="template-auto" aria-pressed="true">Авто</button></div>
+        <label class="template-size" for="template-title-size"><span>Название <output id="template-title-size-value" for="template-title-size">112</output></span><input id="template-title-size" type="range" min="28" max="150" step="2" value="112"></label>
+        <label class="template-size" for="template-author-size"><span>Автор <output id="template-author-size-value" for="template-author-size">48</output></span><input id="template-author-size" type="range" min="18" max="80" step="1" value="48"></label>
         <div class="template-options"><label><input id="template-spine" type="checkbox" checked>Корешок</label><label><input id="template-gray" type="checkbox">Чёрно-белый вид</label></div>
         <p class="template-meta">3:4 · ssdtati library</p>
       </div>

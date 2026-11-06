@@ -24,47 +24,55 @@
     }
     return lines;
   }
-  function layout(c,title,author){
-    for(let size=112;size>=28;size-=2){
-      c.font=`500 ${size}px LoraCover`;c.textAlign='left';c.textBaseline='alphabetic';
+  const fonts=root.CoverFonts||[{id:'lora',name:'Lora',family:'LoraCover',weight:500}];
+  const getFont=id=>fonts.find(f=>f.id===id)||fonts[0];
+  function layout(c,title,author,options={}){
+    const font=getFont(options.fontId);
+    const fixedTitle=Number.isFinite(options.titleSize)?options.titleSize:null;
+    const fixedAuthor=Number.isFinite(options.authorSize)?options.authorSize:null;
+    if((fixedTitle!==null&&(fixedTitle<28||fixedTitle>150))||(fixedAuthor!==null&&(fixedAuthor<18||fixedAuthor>80)))throw new Error('Выберите размер названия от 28 до 150, автора — от 18 до 80.');
+    const titleSizes=fixedTitle!==null?[fixedTitle]:Array.from({length:43},(_,i)=>112-i*2);
+    for(const size of titleSizes){
+      c.font=`${font.weight} ${size}px ${font.family}`;c.textAlign='left';c.textBaseline='alphabetic';
       const textWidth=2*(RX-95);
-      if(size>28&&title.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
+      if(title.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
       const titles=wrap(c,title,textWidth),lh=size*1.18;
-      const as=Math.min(48,Math.max(30,size*.46));c.font=`500 ${as}px LoraCover`;
-      if(size>28&&author.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
-      const authors=wrap(c,author,textWidth),ah=as*1.3,gap=Math.max(24,size*.32),lines=[];
-      function line(text,fontSize,baseline){
-        c.font=`500 ${fontSize}px LoraCover`;
-        const m=c.measureText(text);
-        return {text,size:fontSize,weight:500,baseline,
-          x:CX+(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2,
-          ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent,
-          width:m.actualBoundingBoxLeft+m.actualBoundingBoxRight};
+      const normal=Math.min(48,Math.max(30,size*.46)),floor=fixedTitle!==null?18:30;
+      const authorSizes=fixedAuthor!==null?[fixedAuthor]:Array.from({length:Math.max(1,Math.floor((normal-floor)/2)+1)},(_,i)=>normal-i*2);
+      for(const as of authorSizes){
+        c.font=`${font.weight} ${as}px ${font.family}`;
+        if(author.split(/\s+/).some(word=>c.measureText(word).width>textWidth))continue;
+        const authors=wrap(c,author,textWidth),ah=as*1.3,gap=Math.max(24,size*.32),lines=[];
+        function line(text,fontSize,baseline,kind){
+          c.font=`${font.weight} ${fontSize}px ${font.family}`;
+          const m=c.measureText(text);
+          return {text,size:fontSize,weight:font.weight,family:font.family,kind,baseline,
+            x:CX+(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2,
+            ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent,
+            width:m.actualBoundingBoxLeft+m.actualBoundingBoxRight};
+        }
+        titles.forEach((text,i)=>lines.push(line(text,size,i*lh,'title')));
+        const titleBottom=Math.max(...lines.map(l=>l.baseline+l.descent));
+        authors.forEach((text,i)=>{
+          const next=line(text,as,0,'author');
+          next.baseline=i?lines[lines.length-1].baseline+ah:titleBottom+gap+next.ascent;lines.push(next);
+        });
+        const top=Math.min(...lines.map(l=>l.baseline-l.ascent));
+        const bottom=Math.max(...lines.map(l=>l.baseline+l.descent));
+        if(bottom-top>2*(RY-55))continue;
+        const shift=CY-(top+bottom)/2;
+        lines.forEach(l=>{l.baseline+=shift;l.y=l.baseline-l.ascent;l.height=l.ascent+l.descent;});
+        if(lines.every(l=>{
+          const dy=Math.max(Math.abs(l.y-CY),Math.abs(l.y+l.height-CY));
+          const available=2*(RX-60)*Math.sqrt(Math.max(0,1-(dy/(RY-45))**2));
+          return l.width<=available;
+        }))return lines;
       }
-      titles.forEach((text,i)=>lines.push(line(text,size,i*lh)));
-      const titleBottom=Math.max(...lines.map(l=>l.baseline+l.descent));
-      authors.forEach((text,i)=>{
-        const next=line(text,as,0);
-        next.baseline=i?lines[lines.length-1].baseline+ah:titleBottom+gap+next.ascent;
-        lines.push(next);
-      });
-      const top=Math.min(...lines.map(l=>l.baseline-l.ascent));
-      const bottom=Math.max(...lines.map(l=>l.baseline+l.descent));
-      if(bottom-top>2*(RY-55))continue;
-      // Center the visible glyph bounds, rather than font line boxes and unused leading.
-      const shift=CY-(top+bottom)/2;
-      lines.forEach(l=>{l.baseline+=shift;l.y=l.baseline-l.ascent;l.height=l.ascent+l.descent;});
-      const fits=lines.every(line=>{
-        const dy=Math.max(Math.abs(line.y-CY),Math.abs(line.y+line.height-CY));
-        const available=2*(RX-60)*Math.sqrt(Math.max(0,1-(dy/(RY-45))**2));
-        return line.width<=available;
-      });
-      if(fits)return lines;
     }
-    throw new Error('Слишком много текста для небольшого овального поля. Сократите название или имя автора.');
+    throw new Error('Текст не помещается в овал. Уменьшите размер или нажмите «Авто».');
   }
   function text(c,line){
-    c.font=`${line.weight} ${line.size}px LoraCover`;c.textAlign='left';c.textBaseline='alphabetic';
+    c.font=`${line.weight} ${line.size}px ${line.family||'LoraCover'}`;c.textAlign='left';c.textBaseline='alphabetic';
     const m=c.measureText(line.text);
     const x=line.x??CX+(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2;
     c.fillText(line.text,x,line.baseline??line.y+m.actualBoundingBoxAscent);
@@ -99,9 +107,9 @@
   function render(canvas,theme,options={}){
     const t=typeof theme==='string'?themes.find(v=>v.id===theme):theme;
     if(!t)throw new Error('Выберите шаблон обложки.');
-    canvas.width=W;canvas.height=H;
     const c=canvas.getContext('2d',{willReadFrequently:true});
-    const lines=layout(c,options.title?.trim()||'Название\nкниги',options.author?.trim()||'Имя автора');
+    const lines=layout(c,options.title?.trim()||'Название\nкниги',options.author?.trim()||'Имя автора',options);
+    canvas.width=W;canvas.height=H;canvas.coverLayout=lines;
     c.fillStyle=t.bg;c.fillRect(0,0,W,H);c.fillStyle=t.stripe;
     for(let x=0;x<W;x+=128)c.fillRect(x,0,64,H);
     if(options.spine!==false){
@@ -121,5 +129,5 @@
     if(options.grayscale){const im=c.getImageData(0,0,W,H);for(let i=0;i<im.data.length;i+=4){const v=Math.round((.299*im.data[i]+.587*im.data[i+1]+.114*im.data[i+2])/17)*17;im.data[i]=im.data[i+1]=im.data[i+2]=v;}c.putImageData(im,0,0);}
     return canvas;
   }
-  root.CoverTemplates={render,layout,themes,width:W,height:H,panel:{x:CX,y:CY,width:RX*2,height:RY*2}};
+  root.CoverTemplates={render,layout,getFont,fonts,themes,width:W,height:H,panel:{x:CX,y:CY,width:RX*2,height:RY*2}};
 })(typeof window!=='undefined'?window:globalThis);
